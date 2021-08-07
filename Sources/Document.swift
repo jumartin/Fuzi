@@ -125,6 +125,25 @@ open class XMLDocument {
     let options = Int32(XML_PARSE_NOWARNING.rawValue | XML_PARSE_NOERROR.rawValue | XML_PARSE_RECOVER.rawValue)
     try self.init(buffer: buffer, options: options)
   }
+    
+    
+  /**
+   Creates and returns an instance of XMLDocument from an url, throwing XMLError if an error occured while parsing the XML.
+   
+   - parameter url: URL of the file to parse
+   
+   - throws: `XMLError` instance if an error occurred
+   
+   - returns: An `XMLDocument` with the contents of the XML file.
+   */
+  public convenience init(url: URL) throws {
+    let options = Int32(XML_PARSE_NOWARNING.rawValue | XML_PARSE_NOERROR.rawValue | XML_PARSE_RECOVER.rawValue)
+    guard let document = xmlReadFile(url.absoluteString, nil, options) else {
+      throw XMLError.lastError(defaultError: .parserFailure)
+    }
+    xmlResetLastError()
+    self.init(cDocument: document)
+  }
 
   fileprivate convenience init(buffer: UnsafeBufferPointer<Int8>, options: Int32) throws {
     guard let document = type(of: self).parse(buffer: buffer, options: options) else {
